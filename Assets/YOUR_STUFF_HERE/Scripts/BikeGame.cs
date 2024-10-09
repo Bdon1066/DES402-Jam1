@@ -6,8 +6,9 @@ using UnityEngine;
 
 public class BikeGame : MinigameBase
 {
+    [Header("BikeGame Variables")]
     [SerializeField] private PlayerBike[] players;
-    [SerializeField] Transform finishLine;
+    [SerializeField] EnviromentManager enviromentManager;
     [Tooltip("How much score each player gets for 1st place, 2nd place and so on.")]
     [SerializeField] int[] playerRacePositionScore = new int[4];
     private void Awake()
@@ -98,7 +99,7 @@ public class BikeGame : MinigameBase
 
         //get each player's distance from the finish line
         for (int i = 0; i < 4; i++) {
-            playerDistances.Add(i,(finishLine.position.y - players[i].transform.position.y));
+            playerDistances.Add(i,(enviromentManager.enviroments[i].finishLine.position.y - players[i].transform.position.y));
         }
         //create a list from the dictionary (TODO: could just make the dictionary a keyvalue list tbh)
         var distanceAndPlayerID = new List<KeyValuePair<int, float>>(playerDistances);

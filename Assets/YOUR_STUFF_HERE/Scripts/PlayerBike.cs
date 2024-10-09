@@ -4,15 +4,17 @@ using UnityEngine;
 
 public class PlayerBike : MonoBehaviour
 {
+
+    [SerializeField] PlayerBikeStatistic stats;
+    [SerializeField] BikeGame bikeGame;
+
     float bikePower = 0;
     int m_ScreenID = -1;
-    public PlayerBikeStatistic stats;
-    [SerializeField] BikeGame bikeGame;
+
 
     void Update()
     {
         transform.position += Vector3.up * bikePower * Time.deltaTime;
-       // transform.position = ScreenUtility.ClampToScreen(transform.position, m_ScreenID, 0.5f);
     }
     private void LateUpdate()
     {

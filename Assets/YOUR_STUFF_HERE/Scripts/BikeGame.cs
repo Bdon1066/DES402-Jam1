@@ -6,13 +6,10 @@ using UnityEngine;
 
 public class BikeGame : MinigameBase
 {
-
     [SerializeField] private PlayerBike[] players;
     [SerializeField] Transform finishLine;
     [Tooltip("How much score each player gets for 1st place, 2nd place and so on.")]
     [SerializeField] int[] playerRacePositionScore = new int[4];
-
-
     private void Awake()
     {
         MinigameLoaded.AddListener(InitialiseGame);

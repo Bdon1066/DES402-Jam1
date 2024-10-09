@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ad604ad706bbc442bceea9005aed5a2, type: 3}
   m_Name: DefaultPlayer
   m_EditorClassIdentifier: 
-  maxBikePower: 5
-  buttonPressPower: 0.5
-  bikePowerDecayRate: 0.05
+  maxBikePower: 1
+  buttonPressPower: 0.1
+  bikePowerDecayRate: 0.01

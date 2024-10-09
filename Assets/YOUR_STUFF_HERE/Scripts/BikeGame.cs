@@ -59,6 +59,7 @@ public class BikeGame : MinigameBase
     public override void OnPrimaryFire(int playerIndex)
     {
         players[playerIndex].HandleButtonInput(0);
+        enviromentManager.enviroments[playerIndex].HandleButtonInput(0);
     }
 
     /// <summary>
@@ -68,6 +69,7 @@ public class BikeGame : MinigameBase
     public override void OnSecondaryFire(int playerIndex)
     {
         players[playerIndex].HandleButtonInput(1);
+        enviromentManager.enviroments[playerIndex].HandleButtonInput(1);
     }
 
     public override void TimeUp()

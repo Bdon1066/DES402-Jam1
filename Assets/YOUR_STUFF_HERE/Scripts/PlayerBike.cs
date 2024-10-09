@@ -9,9 +9,13 @@ public class PlayerBike : MonoBehaviour
     [SerializeField] BikeGame bikeGame;
 
     float bikePower = 0;
-    int m_ScreenID = -1;
 
+    Vector2 startingPos;
 
+    void Start()
+    {
+        startingPos = transform.position;
+    }
     void Update()
     {
         transform.position += Vector3.up * bikePower * Time.deltaTime;

@@ -68,6 +68,68 @@ namespace WhaleInput {
         private InputState State;
         private InputState LastState;
 
+        public bool GetButtonDown(WhaleButton btn)
+        {
+            switch (btn)
+            {
+            case WhaleButton.Up:
+                    return (State.Direction.y > 0 && Mathf.Approximately(LastState.Direction.y, 0.0f));
+                case WhaleButton.Down:
+                    return (State.Direction.y < 0 && Mathf.Approximately(LastState.Direction.y, 0.0f));
+                case WhaleButton.Left:
+                    return (State.Direction.x < 0 && Mathf.Approximately(LastState.Direction.x, 0.0f));
+                case WhaleButton.Right:
+                    return (State.Direction.x > 0 && Mathf.Approximately(LastState.Direction.x, 0.0f));
+                
+                case WhaleButton.L_Button:
+                    return (State.A && !LastState.A);
+                case WhaleButton.R_Button:
+                    return (State.B && !LastState.B);
+                default:
+                    return false;
+            }
+        }
+        public bool GetButtonUp(WhaleButton btn)
+        {
+            switch (btn)
+            {
+                case WhaleButton.Up:
+                    return (LastState.Direction.y > 0 && Mathf.Approximately(State.Direction.y, 0.0f));
+                case WhaleButton.Down:
+                    return (LastState.Direction.y < 0 && Mathf.Approximately(State.Direction.y, 0.0f));
+                case WhaleButton.Left:
+                    return (LastState.Direction.x < 0 && Mathf.Approximately(State.Direction.x, 0.0f));
+                case WhaleButton.Right:
+                    return (LastState.Direction.x > 0 && Mathf.Approximately(State.Direction.x, 0.0f));
+
+                case WhaleButton.L_Button:
+                    return (LastState.A && !State.A);
+                case WhaleButton.R_Button:
+                    return (LastState.B && !State.B);
+                default:
+                    return false;
+            }
+        }
+        public bool GetButton(WhaleButton btn)
+        {
+            switch (btn) {
+            case WhaleButton.Up:
+                return State.Direction.y > 0;
+            case WhaleButton.Down:
+                return State.Direction.y < 0;
+            case WhaleButton.Left:
+                return State.Direction.x < 0;
+            case WhaleButton.Right:
+                return State.Direction.x > 0;
+
+            case WhaleButton.L_Button:
+                return State.A;
+            case WhaleButton.R_Button:
+                return State.B;
+            default:
+                return false;
+            }
+        }
         public void Initialise(int[] btns)
         {
             COM.A       = btns[0];
@@ -101,21 +163,22 @@ namespace WhaleInput {
         // Update is called once per frame
         public void Update()
         {
+            LastState = State;
             //TODO: This could be nicer
             State.A = Input.GetKey(Keyboard.A) || 
                 Input.GetButton(Controller.A) || 
                 GetCOMState(COM.A);
             if(State.A && !LastState.A)
             {
-                onButtonAPressedEvents(PlayerID);
+                onButtonAPressedEvents?.Invoke(PlayerID);
             } 
             else if(!State.A && LastState.A)
             {
-                onButtonAReleasedEvents(PlayerID);
+                onButtonAReleasedEvents?.Invoke(PlayerID);
             }
             else if (State.A && LastState.A)
             {
-                onButtonADownEvents(PlayerID);
+                onButtonADownEvents?.Invoke(PlayerID);
             }
 
             State.B = Input.GetKey(Keyboard.B) || 
@@ -123,15 +186,15 @@ namespace WhaleInput {
                 GetCOMState(COM.B);
             if (State.B && !LastState.B)
             {
-                onButtonBPressedEvents(PlayerID);
+                onButtonBPressedEvents?.Invoke(PlayerID);
             }
             else if (!State.B && LastState.B)
             {
-                onButtonBReleasedEvents(PlayerID);
+                onButtonBReleasedEvents?.Invoke(PlayerID);
             }
             else if (State.B && LastState.B)
             {
-                onButtonBDownEvents(PlayerID);
+                onButtonBDownEvents?.Invoke(PlayerID);
             }
 
 
@@ -142,10 +205,11 @@ namespace WhaleInput {
                 (Input.GetKey(Keyboard.Up) ? 1 : 0) + (Input.GetKey(Keyboard.Down) ? -1 : 0)
                 + Input.GetAxis(Controller.Vertical) 
                + (GetCOMState(COM.Up) ? 1 : 0) + (GetCOMState(COM.Down) ? -1 : 0)).normalized;
-            
-            onDirectionInput(PlayerID, Dir);
-
-            LastState = State;
+            State.Direction = Dir;
+            if (onDirectionInput != null)
+            {
+                onDirectionInput(PlayerID, Dir);
+            }
         }
         bool GetCOMState(int keyValue)
         {

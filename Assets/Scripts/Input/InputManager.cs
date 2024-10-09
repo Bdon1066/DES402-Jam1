@@ -2,6 +2,59 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using WhaleInput;
+
+//Leaving this in for future maintainers
+//I think the input system for this should mirror Unity's static "Input." for ease of use
+public enum WhaleButton
+{
+    Up,
+    Down,
+    Left,
+    Right,
+    L_Button,
+    R_Button
+}
+
+public static class WhalesongInput
+{
+    private static WhaleInput.InputManager inputManager;
+    public static void Initialise(WhaleInput.InputManager inMan)
+    {
+        if (inputManager == null)
+        {
+            inputManager = inMan;
+        }
+    }
+
+    public static bool GetButtonDown(int PlayerID, WhaleButton btn)
+    {
+        if (PlayerID > 3)
+        {
+            Debug.LogError("PlayerID is " + PlayerID + ". It must be from 0-3.");
+            return false;
+        }
+        return inputManager.GetButtonDown(PlayerID, btn);
+    }
+    public static bool GetButtonUp(int PlayerID, WhaleButton btn)
+    {
+        if (PlayerID > 3)
+        {
+            Debug.LogError("PlayerID is " + PlayerID + ". It must be from 0-3.");
+            return false;
+        }
+        return inputManager.GetButtonUp(PlayerID, btn);
+    }
+    public static bool GetButton(int PlayerID, WhaleButton btn)
+    {
+        if (PlayerID > 3)
+        {
+            Debug.LogError("PlayerID is " + PlayerID + ". It must be from 0-3.");
+            return false;
+        }
+        return inputManager.GetButton(PlayerID, btn);
+    }
+}
 
 namespace WhaleInput
 {
@@ -24,15 +77,61 @@ namespace WhaleInput
         private SingleComPortController Comtroller;
 
         public System.Action<bool[]> OnPortsVerified;
+        private bool m_Initialised = false;
 
-        public void Initialise(InputActions actions, bool debug)
-        {            
-            print(Application.dataPath);
+        public bool GetButtonDown(int player, WhaleButton button)
+        {
+            return playerInput[player].GetButtonDown(button);
+        }
+        public bool GetButtonUp(int player, WhaleButton button)
+        {
+            return playerInput[player].GetButtonUp(button);
+        }
+        public bool GetButton(int player, WhaleButton button)
+        {
+            return playerInput[player].GetButton(button);
+        }
+
+        private void Awake()
+        {
+            if (!m_Initialised)
+            {
+                Initialise(false);
+            }
+        }
+
+        public void InitialiseActions(InputActions actions)
+        {
+            for (int i = 0; i < playerInput.Length; i++)
+            {
+                playerInput[i].SetListeners(actions, i);
+            }
+        }
+
+        public void Initialise( bool debug)
+        {
+            WhalesongInput.Initialise(this);
             bool good = true;
             int[] btns = new int[24];
-            if (File.Exists(Application.dataPath + "/Buttons.txt"))
+            string path = "";
+#if !UNITY_EDITOR
+            path = Application.dataPath + "/../../Buttons.txt";
+#else
+            path = Application.dataPath + "/Buttons.txt";
+#endif
+            string truePath = "";
+            if (File.Exists(path))
             {
-                var sr = new StreamReader(Application.dataPath + "/Buttons.txt");
+                truePath = path;
+            }
+            else if (File.Exists(Application.dataPath + "/../Buttons.txt"))
+            {
+                truePath = Application.dataPath + "/../Buttons.txt";
+            }
+
+            if (File.Exists(truePath))
+            {
+                var sr = new StreamReader(truePath);
 
                 for (int i = 0; i < 24; i++)
                 {
@@ -60,11 +159,11 @@ namespace WhaleInput
             }
             if (good)
             {
-                Debug.Log("Inputs loaded successfully!");
+                Debug.Log("Inputs loaded successfully from " + truePath);
             }
             else
             {
-                Debug.Log("Inputs NOT loaded!");
+                Debug.LogWarning("Inputs NOT loaded from " + truePath);
             }
             for (int i = 0; i < playerInput.Length; i++)
             {
@@ -83,18 +182,22 @@ namespace WhaleInput
             for (int i = 0; i < playerInput.Length; i++)
             {
                 playerInput[i].SetComtroller(ref Comtroller);
-                playerInput[i].SetListeners(actions, i);
             }
             //TODO: Do this properly!
 
             bool[] playerPortsVerified = new bool[4] {true, true, true, true};
-            OnPortsVerified(playerPortsVerified);
+            if (OnPortsVerified != null)
+            {
+                OnPortsVerified(playerPortsVerified);
+            }
 
             if (debug)
             {
                 InputDebugger ID = Instantiate<InputDebugger>(Resources.Load<InputDebugger>("InputDebugger"));
                 ID.comtroller = Comtroller;
             }
+
+            m_Initialised = true;
         }
 
         private void Update()

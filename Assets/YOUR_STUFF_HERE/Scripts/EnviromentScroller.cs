@@ -32,4 +32,9 @@ public class EnviromentScroller : MonoBehaviour
         scrollPower += scrollingStats.buttonPressPower * ((scrollPower / scrollingStats.maxBikePower) + 1);
         scrollPower = Mathf.Clamp(scrollPower, 0, scrollingStats.maxBikePower);
     }
+    public void Reset()
+    {
+        transform.position = startingPos;
+        scrollPower = 0;
+    }
 }

@@ -11,6 +11,7 @@ public class PlayerBike : MonoBehaviour
     float bikePower = 0;
 
     Vector2 startingPos;
+    float restingPower = 0;
 
     void Start()
     {
@@ -19,10 +20,13 @@ public class PlayerBike : MonoBehaviour
     void Update()
     {
         transform.position += Vector3.up * bikePower * Time.deltaTime;
+
+        //if above middle, we will tend towards falling,otherwise not
+        restingPower = (transform.position.y > 0) ? -1 : 0;
     }
     private void LateUpdate()
     {
-        bikePower = Mathf.MoveTowards(bikePower, 0, stats.bikePowerDecayRate);
+        bikePower = Mathf.MoveTowards(bikePower, restingPower, stats.bikePowerDecayRate);
     }
 
     public void HandleButtonInput(int buttonID)
@@ -37,5 +41,10 @@ public class PlayerBike : MonoBehaviour
         {
             bikeGame.OnFinishReached();
         }
+    }
+    public void Reset()
+    {
+        transform.position = startingPos;
+        bikePower = 0;
     }
 }

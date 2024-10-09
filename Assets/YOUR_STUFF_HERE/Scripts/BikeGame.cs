@@ -13,7 +13,7 @@ public class BikeGame : MinigameBase
     [SerializeField] int[] playerRacePositionScore = new int[4];
     private void Awake()
     {
-        MinigameLoaded.AddListener(InitialiseGame);
+        MinigameStart.AddListener(StartGame);
     }
 
     /// <summary>
@@ -80,8 +80,6 @@ public class BikeGame : MinigameBase
 
     protected override void OnResetGame()
     {
-        //Is there any cleanup you have to do when the game gets totally reset?
-        //This might just be empty!
 
     }
 
@@ -90,9 +88,13 @@ public class BikeGame : MinigameBase
         OnGameComplete(true);
     }
 
-    public void InitialiseGame()
+    public void StartGame()
     {
-        //TODO: Reset players to start point
+        for (int i = 0; i < 4; i++)
+        {
+            players[i].Reset();
+            enviromentManager.enviroments[i].Reset();
+        }
     }
     int[] DeterminePlayerRacePositions()
     {

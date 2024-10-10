@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxBikePower: 2
   buttonPressPower: 0.2
-  bikePowerDecayRate: 0.04
+  bikePowerDecayRate: 0.05
   playerAnimationSprites:
   - {fileID: 21300000, guid: 019872295231daf4ab16c691db5db814, type: 3}
   - {fileID: 21300000, guid: cdd777b116d35ba4eab31605e71781a9, type: 3}

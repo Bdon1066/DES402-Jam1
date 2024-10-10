@@ -9,8 +9,19 @@ public class BikeGame : MinigameBase
     [Header("BikeGame Variables")]
     [SerializeField] private PlayerBike[] players;
     [SerializeField] EnviromentManager enviromentManager;
+    [SerializeField] CountdownTimer countdownTimer;
+    [SerializeField] PlayerPositionDisplay playerPositionDisplay;
+
     [Tooltip("How much score each player gets for 1st place, 2nd place and so on.")]
     [SerializeField] int[] playerRacePositionScore = new int[4];
+
+    [SerializeField] AudioClip endGameAudio;
+    
+
+    //The playerID's sorted in order of race position
+    int[] playerRacePositions = new int[4];
+
+    bool allowInput = true;
     private void Awake()
     {
         MinigameStart.AddListener(StartGame);
@@ -30,9 +41,9 @@ public class BikeGame : MinigameBase
         {
             if (PlayerUtilities.GetPlayerState(i) == Player.PlayerState.ACTIVE)
             {
-                var playerPositions = DeterminePlayerRacePositions();
+                playerRacePositions = DeterminePlayerRacePositions();
                 //each player is scored on how far they were from the finish
-                gsd.PlayerScores[playerPositions[i]] = playerRacePositionScore[i];
+                gsd.PlayerScores[playerRacePositions[i]] = playerRacePositionScore[i];
                 
                 gsd.PlayerTimes[i] = gsd.PlayerScores[i] * 2;   //Each player gets two seconds per point scored
                 teamTime += gsd.PlayerTimes[i];                 //Keep a running total of the total time scored by all players
@@ -43,33 +54,31 @@ public class BikeGame : MinigameBase
         return gsd;
     }
 
-    /// <summary>
-    /// How do you want to handle input from the four directional buttons?
-    /// </summary>
-    /// <param name="playerIndex">Which player (0-3) pressed the button</param>
-    /// <param name="direction">Which direction(s) are they pressing</param>
     public override void OnDirectionalInput(int playerIndex, Vector2 direction)
     {
 
     }
-    /// <summary>
-    /// What should happen when the player presses the left hand button?
-    /// </summary>
-    /// <param name="playerIndex">Which player (0-3) pressed the button</param>
+
     public override void OnPrimaryFire(int playerIndex)
     {
+        if (!allowInput) { return; }
+
         players[playerIndex].HandleButtonInput(0);
         enviromentManager.enviroments[playerIndex].HandleButtonInput(0);
+
+        playerRacePositions = DeterminePlayerRacePositions();
+        playerPositionDisplay.UpdateDisplays(playerRacePositions);
     }
 
-    /// <summary>
-    /// What should happen when the player presses the right hand button?
-    /// </summary>
-    /// <param name="playerIndex">Which player (0-3) pressed the button</param>
     public override void OnSecondaryFire(int playerIndex)
     {
+        if (!allowInput){return;}
+
         players[playerIndex].HandleButtonInput(1);
         enviromentManager.enviroments[playerIndex].HandleButtonInput(1);
+
+        playerRacePositions = DeterminePlayerRacePositions();
+        playerPositionDisplay.UpdateDisplays(playerRacePositions);
     }
 
     public override void TimeUp()
@@ -86,16 +95,27 @@ public class BikeGame : MinigameBase
     public void OnFinishReached()
     {
         OnGameComplete(true);
+        PlayerAudioManager.PlayGlobalOneShot(endGameAudio);
     }
 
     public void StartGame()
     {
+        print("STAAART");
         for (int i = 0; i < 4; i++)
         {
             players[i].Reset();
             enviromentManager.enviroments[i].Reset();
         }
+        countdownTimer.BeginCountdown();
+        StartCoroutine(DisableInputForSeconds(4f));
     }
+    private IEnumerator DisableInputForSeconds(float seconds)
+    {
+        allowInput = false;
+        yield return new WaitForSeconds(seconds);
+        allowInput = true;
+    }
+
     int[] DeterminePlayerRacePositions()
     {
         Dictionary<int, float> playerDistances = new Dictionary<int, float>();
@@ -103,19 +123,23 @@ public class BikeGame : MinigameBase
 
         //get each player's distance from the finish line
         for (int i = 0; i < 4; i++) {
-            playerDistances.Add(i,(enviromentManager.enviroments[i].finishLine.position.y - players[i].transform.position.y));
+            var distanceFromFinish = enviromentManager.enviroments[i].finishLine.position.y - players[i].transform.position.y;
+            playerDistances.Add(i,(distanceFromFinish));
         }
         //create a list from the dictionary (TODO: could just make the dictionary a keyvalue list tbh)
-        var distanceAndPlayerID = new List<KeyValuePair<int, float>>(playerDistances);
+        var playerIDsAndDistances = new List<KeyValuePair<int, float>>(playerDistances);
+
         //Sort the list based on distnace (shortest distance goes first, then second shortest etc.)
-        distanceAndPlayerID.Sort((a, b) => a.Value.CompareTo(b.Value));
+        playerIDsAndDistances.Sort((a, b) => a.Value.CompareTo(b.Value));
         
-        //get each playerID from the list now in order of how far they were from the finish
+        //get each playerID from the sorted list
         for (int i = 0; i < 4; i++){
-            playerPositions[i] = distanceAndPlayerID[i].Key;
-            print("Player " + (playerPositions[i] + 1) + " came in " + (i + 1) + "th place");
+            playerPositions[i] = playerIDsAndDistances[i].Key;
+            //print("Player " + (playerPositions[i] + 1) + " came in " + (i + 1) + "th place");
         }
-        return playerPositions;
+        
+        return playerPositions; 
+        //in order of race position (1st place is element 0, 2nd is element 1 etc.)
     }
 
 }

@@ -8,4 +8,6 @@ public class PlayerBikeStatistic : ScriptableObject
     public float maxBikePower = 5;
     public float buttonPressPower = 1f;
     public float bikePowerDecayRate = 0.01f;
+
+    public Sprite[] playerAnimationSprites;
 }

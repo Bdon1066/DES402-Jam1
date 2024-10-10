@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ad604ad706bbc442bceea9005aed5a2, type: 3}
   m_Name: DefaultScroller
   m_EditorClassIdentifier: 
-  maxBikePower: 30
-  buttonPressPower: 0.3
-  bikePowerDecayRate: 0.03
+  maxBikePower: 20
+  buttonPressPower: 0.2
+  bikePowerDecayRate: 0.04
+  playerAnimationSprites: []

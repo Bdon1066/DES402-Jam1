@@ -12,6 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ad604ad706bbc442bceea9005aed5a2, type: 3}
   m_Name: DefaultPlayer
   m_EditorClassIdentifier: 
-  maxBikePower: 1
-  buttonPressPower: 0.1
-  bikePowerDecayRate: 0.01
+  maxBikePower: 2
+  buttonPressPower: 0.2
+  bikePowerDecayRate: 0.04
+  playerAnimationSprites:
+  - {fileID: 21300000, guid: 019872295231daf4ab16c691db5db814, type: 3}
+  - {fileID: 21300000, guid: cdd777b116d35ba4eab31605e71781a9, type: 3}
+  - {fileID: 21300000, guid: c5b6b89c86966a84d9d36e68b51a71bf, type: 3}
